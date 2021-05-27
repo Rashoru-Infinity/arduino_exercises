@@ -1,5 +1,5 @@
 # chapter12
-- オリジナルの挙動
+- 繧ｪ繝ｪ繧ｸ繝翫Ν縺ｮ謖吝虚  
 ![ezgif-7-ddc47e82$e41b](https://user-images.githubusercontent.com/49583698/119879191-ecc70480-bf65-11eb-89e5-2c0f623b5229.gif)
-- 変更後の挙動  
+- 螟画峩蠕後�ｮ謖吝虚  
 ![chapter6](https://user-images.githubusercontent.com/49583698/119877803-6cec6a80-bf64-11eb-8cc2-498c60685991.gif)
