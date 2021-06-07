@@ -6,7 +6,7 @@
 #    By: al19136 <al19136@shibaura-it.ac.jp>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/04 02:11:58 by al19136           #+#    #+#              #
-#    Updated: 2021/06/07 22:54:15 by al19136          ###   ########.fr        #
+#    Updated: 2021/06/07 23:00:47 by al19136          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,6 +28,7 @@ varDict['var'] = []
 varDictPullDown = {}
 varDictPullDown['angle'] = []
 varDictPullDown['var'] = []
+plt.figure(figsize = (8, 8))
 plt.figure(1)
 plt.grid(True)
 do_processing('data1', varDict, 90)
@@ -39,6 +40,7 @@ plt.plot(varDict['angle'], np.poly1d(np.polyfit(varDict['angle'], varDict['var']
 plt.xlabel('Angle[$deg$]')
 plt.ylabel('Variance[$deg^2$]')
 plt.title('NormalCircuit')
+plt.figure(figsize = (8, 8))
 plt.figure(2)
 plt.grid(True)
 do_processing('data5', varDictPullDown, 90)

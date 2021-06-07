@@ -6,7 +6,7 @@
 #    By: al19136 <al19136@shibaura-it.ac.jp>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/04 02:11:58 by al19136           #+#    #+#              #
-#    Updated: 2021/06/07 22:47:33 by al19136          ###   ########.fr        #
+#    Updated: 2021/06/07 23:01:43 by al19136          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,7 @@ def do_processing(label, varDict):
 varDict = {}
 varDict['dist'] = pd.read_csv('./distance.csv', encoding = 'utf-8')['dist']
 varDict['var'] = []
+plt.figure(figsize = (8, 8))
 plt.figure(1)
 plt.grid(True)
 plt.title('Light intensity')
@@ -36,6 +37,7 @@ do_processing('data5', varDict)
 plt.xlabel('Time[$ms$]')
 plt.ylabel('Value')
 plt.legend(varDict['dist'])
+plt.figure(figsize = (8, 8))
 plt.figure(2)
 plt.grid(True)
 plt.title('Variance of light intensity')
