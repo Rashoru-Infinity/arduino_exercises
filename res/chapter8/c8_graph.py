@@ -6,7 +6,7 @@
 #    By: al19136 <al19136@shibaura-it.ac.jp>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/04 02:11:58 by al19136           #+#    #+#              #
-#    Updated: 2021/06/07 23:25:34 by al19136          ###   ########.fr        #
+#    Updated: 2021/06/08 00:51:54 by al19136          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ def append_variance(label, varDict, angle):
 	csv = "./c8_" + label + ".csv"
 	print(label + ":")
 	data = pd.read_csv(csv, encoding = 'utf-8')
+	print("ave : " + str(np.mean(data['value'])))
 	print("var : " + str(np.var(data['value'])))
 	varDict['angle'].append(angle)
 	varDict['var'].append(np.var(data['value']))
@@ -59,7 +60,7 @@ append_variance('data4', varDict, 0)
 plt.scatter(varDict['angle'], varDict['var'])
 plt.plot(varDict['angle'], np.poly1d(np.polyfit(varDict['angle'], varDict['var'], 2))(varDict['angle']));
 plt.xlabel('Angle[$deg$]')
-plt.ylabel('Variance[$deg^2$]')
+plt.ylabel('Variance')
 plt.title('NormalCircuit')
 plt.figure(figsize = (8, 8))
 plt.figure(3)
@@ -71,7 +72,7 @@ append_variance('data8', varDictPullDown, 0)
 plt.scatter(varDictPullDown['angle'], varDictPullDown['var'])
 plt.plot(varDictPullDown['angle'], np.poly1d(np.polyfit(varDictPullDown['angle'], varDictPullDown['var'], 2))(varDictPullDown['angle']));
 plt.xlabel('Angle[$deg$]')
-plt.ylabel('Variance[$deg^2$]')
+plt.ylabel('Variance')
 plt.title('NormalCircuit + PullDownCircuit')
 
 plt.show()
