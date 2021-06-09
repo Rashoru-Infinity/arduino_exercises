@@ -26,7 +26,10 @@ void setup() {
 void show_status() {
   //heading
   text("deg : ", 10, 20);
-  text(deg + 180, 60, 20);
+  if (millis() < 15000)
+    text(deg + 180, 60, 20);
+  else
+    text(deg, 60, 20);
   //speed
   text("speed : ", 10, 40);
   text(speed, 60, 40);
@@ -75,7 +78,7 @@ void draw() {
     x += velocityX;
     y += velocityY;
     show_status();
-    deg = degrees(atan2(velocityY, velocityX));
+    deg = -degrees(atan2(velocityY, velocityX));
     velocityY += 9.8 * (float((millis() - time)) / 1000);
     speed = getVectorSize(velocityX, velocityY);
     time = millis();
