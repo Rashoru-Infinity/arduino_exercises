@@ -105,10 +105,7 @@ void draw() {
     int b = int(float((defaultColor[i * 2] & 0x0000ff00) >>> 8) * radpt / PI);
     int a = int(float((defaultColor[i * 2] & 0x000000ff)) * radpt / PI);
     
-    println(r + "," + g + "," + b + "," + a);
     style[i * 2] = (r << 24) | (g << 16) | (b << 8) | a;
-    
-    println(i + " " + style[i * 2]);
     
  
     rotateX(pt[index++]);
@@ -117,20 +114,17 @@ void draw() {
  
     if(style[i*2+1]==0) {
       stroke(style[i*2]);
-      println(i + " " + style[i * 2]);
       noFill();
       strokeWeight(1);
       arcLine(0,0, pt[index++],pt[index++],pt[index++]);
     }
     else if(style[i*2+1]==1) {
       fill(style[i*2]);
-      println(i + " " + style[i * 2]);
       noStroke();
       arcLineBars(0,0, pt[index++],pt[index++],pt[index++]);
     }
     else {
       fill(style[i*2]);
-      println(i + " " + style[i * 2]);
       noStroke();
       arc(0,0, pt[index++],pt[index++],pt[index++]);
     }
