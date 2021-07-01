@@ -57,7 +57,7 @@ long time = Long.MAX_VALUE;
 /*
  * loads new blocks
  */
-void get_block(){
+void set_block(){
   float get = random(7);
   get = 0;
   if(get < 1){
@@ -90,6 +90,13 @@ void get_block(){
   }
   //x_pos = 12;
   y_pos = 0;
+}
+
+void printTop() {
+  for (int i = 0;i < top[0].length;i++) {
+    System.out.print(top[stage][i]);
+  }
+  System.out.print(System.getProperty("line.separator"));
 }
 
 /*
@@ -136,13 +143,13 @@ void changeStage(int light){
     if(stage == 0){
     if(light_pre - light > 50 ){
       stage = 1;
-      get_block();
+      set_block();
     }
   }
   else{
     if(light - light_pre > 50){
       stage = 0;
-      get_block();
+      set_block();
     }
   }
   light_pre = light;
@@ -176,7 +183,7 @@ boolean checkFallen(){
     }
     ++x_pos;
     x_pos %= rowLength;
-    get_block();
+    set_block();
     return true;
   }
   return false;
@@ -192,6 +199,21 @@ void setBottom() {
         bottom[stage][x] = y;
         break;
       }
+    }
+  }
+}
+
+void setTop() {
+  for (int x = 0;x < field[stage].length;x++) {
+    int y = 0;
+    for (;y < field[stage][x].length;y++) {
+      if (field[stage][x][y] == 1) {
+        top[stage][x] = y;
+        break;
+      }
+    }
+    if (y == field[stage][x].length) {
+      top[stage][x] = 50;
     }
   }
 }
@@ -270,12 +292,15 @@ void delete(){
     }
   }
   for(int i = 0; i < array.size(); i++){
-    for(int y = array.get(i); y > 0; y--){
+    System.out.println(i);
+    for(int y = array.get(i); y > 0; y--){ //<>//
       for(int x = 0; x < rowLength; x++){
-        field[stage][x][y] = field[stage][x][y-1];
+        field[stage][x][y] = field[stage][x][y - 1];
+        field[stage][x][y - 1] = 0; //<>//
       }
     }
   }
+  setTop();
 }
 
 /*
@@ -289,6 +314,7 @@ void updateView(){
       }
     }
   }
+  fill(255,255,255);
   for(int x = 0; x < objectWidth; x++){
     for(int y = 0; y < objectHeight; y++){
       if(block[x][y] == 1){
@@ -296,6 +322,7 @@ void updateView(){
       }
     }
   }
+  fill(255, 0, 0);
   line(0, width / rowLength * 10, width, height / columnLength * 10);
   stroke(255);
 }
@@ -322,6 +349,7 @@ void draw() {
   int move_x = arduino.analogRead(input4);
   int move_y = arduino.analogRead(input6);
   //rotation(rot);
+  printTop();
   move(move_x,move_y);
   //checkFallen();
   delete();
@@ -333,7 +361,7 @@ void draw() {
     noLoop();
   }
   //if(count == 60){
-  if (millis() >= 60 * 1000) {
+  if (millis() >= 100 * 1000) {
     text("player2 win!",20,40);
     noLoop();
   }
