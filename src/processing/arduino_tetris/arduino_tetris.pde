@@ -41,8 +41,7 @@ int[][] top = new int[2][25];
 //height(y value) of object that is moving
 int[][] bottom = new int[2][4];
 //shape of blocks
-//int[][] i_block = {{0,0,1,0},{0,0,1,0},{0,0,1,0},{0,0,1,0}};
-int[][] i_block = {{1,1,1,1},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+int[][] i_block = {{0,0,1,0},{0,0,1,0},{0,0,1,0},{0,0,1,0}};
 int[][] s_block = {{0,0,0,0},{0,1,1,0},{0,0,1,1},{0,0,0,0}};
 int[][] z_block = {{0,0,0,0},{0,0,1,1},{0,1,1,0},{0,0,0,0}};
 int[][] t_block = {{0,0,0,0},{0,0,1,0},{0,1,1,1},{0,0,0,0}};
@@ -59,7 +58,6 @@ long time = Long.MAX_VALUE;
  */
 void set_block(){
   float get = random(7);
-  get = 0;
   if(get < 1){
     block = i_block;
   }
@@ -88,7 +86,7 @@ void set_block(){
       }
     }
   }
-  //x_pos = 12;
+  x_pos = 12;
   y_pos = 0;
 }
 
@@ -108,13 +106,17 @@ void rotation(int rot){
       int[][] tmp_block = new int[4][4];
       for(int x = 0; x < tmp_block.length; x++){
         for(int y = 0; y < tmp_block[x].length; y++){
-          tmp_block[x][y] = block[tmp_block[x].length - 1 - y][x];
+          tmp_block[block.length - 1 - y][x] = block[x][y];
         }
       }
       if (!isRotatable(tmp_block)) {
         return ;
       }
-      block = tmp_block;
+      for (int x = 0;x < block.length;x++) {
+        for (int y = 0;y < block[x].length;y++) {
+          block[x][y] = tmp_block[x][y];
+        }
+      }
       setBottom();
   }
   rot_pre = rot;
@@ -163,13 +165,15 @@ boolean checkFallen(){
   int check = 0;
   for(int i = 0; i < objectWidth && x_pos + i < rowLength; i++){
     if(top[stage][x_pos+i] - (y_pos + bottom[stage][i]) == 1){
-      check = 1;
+      if (block[i][bottom[stage][i]] == 1) {
+        check = 1;
+      }
     }
-  }
+  } //<>//
   if(check == 1){
     for(int x = 0; x < objectWidth; x++){
       for(int y = 0; y < objectHeight; y++){
-        if (block[x][y] == 1) {
+        if (block[x][y] == 1 && x_pos + x < field[stage].length) {
           field[stage][x_pos+x][y_pos+y] = block[x][y];
         }
       }
@@ -181,8 +185,6 @@ boolean checkFallen(){
         }
       }
     }
-    ++x_pos;
-    x_pos %= rowLength;
     set_block();
     return true;
   }
@@ -220,8 +222,20 @@ void setTop() {
 
 boolean isRotatable(int[][] rotatingObject) {
   for (int x = 0;x < rotatingObject.length;x++) {
+    if (x_pos + x < 0 || x_pos + x >= field[stage].length) {
+      return false;
+    }
     for (int y = rotatingObject[x].length - 1;y >= 0;y--) {
+      if (y_pos + y >= field[stage][x].length) {
+        return false;
+      }
       if (y_pos + y >= field[stage][x_pos + x].length) {
+        return false;
+      }
+      if (x_pos + x < 0 || x_pos + x >= field[stage].length) {
+        return false;
+      }
+      if (field[stage][x_pos + x][y_pos + y] == 1) {
         return false;
       }
     }
@@ -232,10 +246,7 @@ boolean isRotatable(int[][] rotatingObject) {
  * moves blocks
  */
 void move(int move_x,int move_y){
-  text(y_pos, 20, 40);
-  text(time / 1000, 20, 80);
-  text(millis() / 1000, 20, 120);
-  if (time / 10 != millis() / 10) {
+  if (time / 100 != millis() / 100) {
     if (checkFallen()) {
       return ;
     }
@@ -271,6 +282,7 @@ void move(int move_x,int move_y){
       x_pos++;
     }
   }
+  checkFallen();
 }
 
 /*
@@ -293,10 +305,10 @@ void delete(){
   }
   for(int i = 0; i < array.size(); i++){
     System.out.println(i);
-    for(int y = array.get(i); y > 0; y--){ //<>//
+    for(int y = array.get(i); y > 0; y--){
       for(int x = 0; x < rowLength; x++){
         field[stage][x][y] = field[stage][x][y - 1];
-        field[stage][x][y - 1] = 0; //<>//
+        field[stage][x][y - 1] = 0;
       }
     }
   }
@@ -340,6 +352,7 @@ void setup() {
     }
   }
   delay(1000);
+  set_block();
 }
 
 void draw() {
@@ -348,12 +361,13 @@ void draw() {
   int light = arduino.analogRead(input2); 
   int move_x = arduino.analogRead(input4);
   int move_y = arduino.analogRead(input6);
-  //rotation(rot);
+  
   printTop();
+  rotation(rot);
   move(move_x,move_y);
   //checkFallen();
   delete();
-  changeStage(light);
+  //changeStage(light);
   updateView();
   //delay(1000);
   if(line == 5){
@@ -361,7 +375,7 @@ void draw() {
     noLoop();
   }
   //if(count == 60){
-  if (millis() >= 100 * 1000) {
+  if (millis() >= 1000 * 1000) {
     text("player2 win!",20,40);
     noLoop();
   }
