@@ -6,8 +6,8 @@ import java.io.*;
 int width = 750;
 int height = 1500;
 
-final int rowLength = 25;
-final int columnLength = 50;
+final int rowLength = 10;
+final int columnLength = 30;
 final int objectWidth = 4;
 final int objectHeight = 4;
 
@@ -28,7 +28,7 @@ int light_pre = 100;
 //shape of object that is moving
 int[][] block = new int[4][4];
 //block status [stage][x][y]
-int[][][] field = new int[2][25][50];
+int[][][] field = new int[2][10][30];
 int stage = 0;
 //number of deleted lines max = 5
 int line = 0;
@@ -37,7 +37,7 @@ int count = 0;
 //position of upper left
 int x_pos = 0, y_pos = 0;
 //height of fallen objects
-int[][] top = new int[2][25];
+int[][] top = new int[2][10];
 //height(y value) of object that is moving
 int[][] bottom = new int[2][4];
 //shape of blocks
@@ -86,7 +86,7 @@ void set_block(){
       }
     }
   }
-  x_pos = 12;
+  x_pos = 5;
   y_pos = 0;
 }
 
@@ -101,40 +101,44 @@ void printTop() {
  * rotate blocks
  * @value rot value of potentionmeter
  */
-void rotation(int rot){
-  if(rot_pre > rot){
-      int[][] tmp_block = new int[4][4];
-      for(int x = 0; x < tmp_block.length; x++){
-        for(int y = 0; y < tmp_block[x].length; y++){
+void rotate(int rot){
+    int[][] tmp_block = new int[4][4];
+    for(int x = 0; x < tmp_block.length; x++){
+      for(int y = 0; y < tmp_block[x].length; y++){
+        //turn right
+        if (rot_pre > rot + 50) {
           tmp_block[block.length - 1 - y][x] = block[x][y];
+        //turn left
+        } else if (rot_pre < rot - 50) {
+          tmp_block[y][block.length - 1 - x] = block[x][y];
         }
       }
-      if (!isRotatable(tmp_block)) {
-        return ;
+    }
+    if (abs(rot - rot_pre) <= 50) {
+      return ;
+    }
+    if (!isRotatable(tmp_block)) {
+      return ;
+    }
+    for (int x = 0;x < block.length;x++) {
+      for (int y = 0;y < block[x].length;y++) {
+        block[x][y] = tmp_block[x][y];
       }
-      for (int x = 0;x < block.length;x++) {
-        for (int y = 0;y < block[x].length;y++) {
-          block[x][y] = tmp_block[x][y];
-        }
-      }
-      setBottom();
-  }
+    }
+    setBottom();
   rot_pre = rot;
 }
 
 Direction getDirection(int x_in, int y_in) {
-  if (x_in > 1023/2*(1-cos(PI/3)) && x_in < 1023/2*(1-cos(2*PI/3))
-    && y_in > 0 && y_in < 1023/2*(1-sin(PI/3))) {
+  if (x_in == 0) {
     return Direction.right;
   }
-  if (x_in > 1023/2*(1-cos(5*PI/6)) && x_in < 1023
-    && y_in > 1023/2*(1-sin(5*PI/6)) && y_in < 1023/2*(1-sin(7*PI/6))) {
+  if (x_in == 1023) {
+    return Direction.left;
+  }
+  if (y_in == 1023) {
     return Direction.down;
   }
-  if (x_in > 1023/2*(1-cos(PI/3)) && x_in <1023/2*(1-cos(2*PI/3))
-    && y_in > 1023/2*(1-sin(5*PI/3)) && y_in < 1023) {
-    return Direction.left;
-   }
   return Direction.undefined;
 }
 /*
@@ -157,15 +161,18 @@ void changeStage(int light){
   light_pre = light;
 }
 /*
- * checks if block is fallen
+ * checks if block is fallen or not
  */
 boolean checkFallen(){
   //System.out.println(y_pos);
   //System.out.println(field[stage][x_pos].length);
   int check = 0;
-  for(int i = 0; i < objectWidth && x_pos + i < rowLength; i++){
-    if(top[stage][x_pos+i] - (y_pos + bottom[stage][i]) == 1){
-      if (block[i][bottom[stage][i]] == 1) {
+  for(int x = 0; x < block.length && x_pos + x < rowLength; x++){
+    if (y_pos + bottom[stage][x] + 1 == columnLength) {
+      check = 1;
+    }
+    if(check != 1 && x_pos + x >= 0 && field[stage][x_pos + x][y_pos + bottom[stage][x] + 1] == 1){
+      if (block[x][bottom[stage][x]] == 1) {
         check = 1;
       }
     }
@@ -255,32 +262,41 @@ void move(int move_x,int move_y){
   }
   int loc = 0;
   if(getDirection(move_x, move_y) == Direction.right) {
-    for(int i = 0; i < objectWidth; i++){
-      for(int j = objectHeight - 1; j >= 0; j--){
-        if(block[i][j] == 1){
-          loc = j;
-        }
-      }
-    }
-    if(x_pos+loc < field[stage].length){
-      x_pos++;
-    }
-  } else if(getDirection(move_x, move_y) == Direction.down){
     for (int x = 0;x < block.length;x++) {
-      if (bottom[stage][x] + 1 >= top[stage][x]) {
-        return ;
-      }
-      y_pos++;
-    }
-  } else if (getDirection(move_x, move_y) == Direction.left){
-    if(x_pos > 0){
-      for (int y = 0;y < block.length;y++) {
-        if (field[stage][x_pos - 1][y] == 1) {
+      for (int y = 0;y < block[x].length;y++) {
+        if (block[x][y] == 1 && x + x_pos + 1 < field[stage].length && field[stage][x + x_pos + 1][y + y_pos] == 1) {
+            return ;
+        }
+        if (block[x][y] == 1 && x + x_pos + 1 >= field[stage].length) {
           return ;
         }
       }
-      x_pos++;
     }
+    x_pos++;
+  } else if(getDirection(move_x, move_y) == Direction.down){
+    for (int x = 0;x < block.length;x++) {
+      for (int y = 0;y < block[x].length;y++) {
+        if (block[x][y] == 1 && y + y_pos + 1 < field[stage][x].length && field[stage][x + x_pos][y + y_pos + 1] == 1) {
+            return ;
+        }
+        if (block[x][y] == 1 && y + y_pos + 1 >= field[stage][x].length) {
+          return ;
+        }
+      }
+    }
+    y_pos++;
+  } else if (getDirection(move_x, move_y) == Direction.left){
+    for (int x = 0;x < block.length;x++) {
+      for (int y = 0;y < block[x].length;y++) {
+        if (block[x][y] == 1 && x + x_pos - 1 >= 0 && field[stage][x + x_pos - 1][y + y_pos] == 1) {
+            return ;
+        }
+        if (block[x][y] == 1 && x + x_pos - 1 < 0) {
+          return ;
+        }
+      }
+    }
+    x_pos--;
   }
   checkFallen();
 }
@@ -335,12 +351,12 @@ void updateView(){
     }
   }
   fill(255, 0, 0);
-  line(0, width / rowLength * 10, width, height / columnLength * 10);
+  line(0, height / columnLength * 10, width, height / columnLength * 10);
   stroke(255);
 }
 
 void setup() {
-  size(750, 1500);
+  size(800, 1500);
   arduino = new Arduino(this, "COM4", 57600);
   arduino.pinMode(input0, Arduino.INPUT);
   arduino.pinMode(input2, Arduino.INPUT);
@@ -357,34 +373,33 @@ void setup() {
 
 void draw() {
   background(0);
-  int rot = arduino.analogRead(input0);
-  int light = arduino.analogRead(input2); 
+  int rot = arduino.analogRead(input0); 
   int move_x = arduino.analogRead(input4);
   int move_y = arduino.analogRead(input6);
+
+  textSize(32);
+  text("Time Limit : " + ((300 * 1000 - millis()) / 1000) + "[s]", 20, 60);
   
   printTop();
-  rotation(rot);
+  rotate(rot);
   move(move_x,move_y);
-  //checkFallen();
   delete();
-  //changeStage(light);
   updateView();
-  //delay(1000);
-  if(line == 5){
-    text("player1 win!" ,20,40);
+  if(line >= 1){
+    textSize(60);
+    text("Congulatulations!!!!" , 80, height / 2);
     noLoop();
   }
-  //if(count == 60){
-  if (millis() >= 1000 * 1000) {
-    text("player2 win!",20,40);
+  if (millis() >= 300 * 1000) {
+    textSize(60);
+    text("GameOver!", 210, height / 2);
     noLoop();
   }
-  for (int x = 0;x < top[stage].length;x++) {
+  for (int x = 0;x < rowLength;x++) {
     if (top[stage][x] < 10) {
-      text("player2 win!", 20, 40);
+      textSize(60);
+      text("GameOver!", 210, height / 2);
       noLoop();
     }
   }
-  //noLoop();
-  count++;
 }
