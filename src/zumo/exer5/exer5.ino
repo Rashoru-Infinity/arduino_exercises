@@ -60,37 +60,70 @@ void printReadingsToSerial()
   Serial.print(buffer);
 }
 
+bool mySerialRead() {
+  char buf[5];
+  int index = 0;
+  while (Serial.available() > 0) {
+    char c = Serial.read();
+    /*
+    if (index >= 5) {
+      return false;
+    }
+    */
+    buf[index++] = c;
+  }
+  if (buf[0] != 's')
+    return false;
+  if (buf[1] != 't')
+    return false;
+  if (buf[2] != 'a')
+    return false;
+  if (buf[3] != 'r')
+    return false;
+  if (buf[4] != 't')
+    return false;
+  return true;
+}
+
 void loop()
 {
   while (true) {
-    if (button.getSingleDebouncedPress())
+    //if (button.getSingleDebouncedPress() || mySerialRead()) {
+    if (mySerialRead()) {
       start = true;
+      Serial.print("start");
+    }
     if (start)
       break;
   }
   reflectanceSensors.read(sensorValues, QTR_EMITTERS_ON);
   int s = updateStatus();
   if (s == 1) {
-    motors.setSpeeds(300, -300);
-    Serial.print("r\n");
+    motors.setSpeeds(400, 0);
+    delay(30);
+    //Serial.print("r\n");
   }
   if (s == 2) {
-    motors.setSpeeds(-300, 300);
-    Serial.print("l\n");
+    motors.setSpeeds(0, 400);
+    delay(30);
+    //Serial.print("l\n");
   }
   if (s == 0) {
-    Serial.print("s\n");
+    //Serial.print("s\n");
     while (true) {
       start = false;
       motors.setSpeeds(0, 0);
-      if (button.getSingleDebouncedPress())
+      /*
+      if (button.getSingleDebouncedPress()) {
         start = true;
+      }
+      */
       if (start)
         break;
     }
   }
   if (s == 3) {
-    Serial.print("nop\n");
+    //Serial.print("nop\n");
     motors.setSpeeds(100, 100);
   }
   printReadingsToSerial();
